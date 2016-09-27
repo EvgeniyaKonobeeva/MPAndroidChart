@@ -32,6 +32,7 @@ import com.xxmassdeveloper.mpchartexample.LineChartActivity1;
 import com.xxmassdeveloper.mpchartexample.LineChartActivity2;
 import com.xxmassdeveloper.mpchartexample.LineChartActivityColored;
 import com.xxmassdeveloper.mpchartexample.LineChartTime;
+import com.xxmassdeveloper.mpchartexample.LineChartViaDumbbell;
 import com.xxmassdeveloper.mpchartexample.ListViewBarChartActivity;
 import com.xxmassdeveloper.mpchartexample.ListViewMultiChartActivity;
 import com.xxmassdeveloper.mpchartexample.MultiLineChartActivity;
@@ -65,6 +66,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
         Utils.init(this);
 
         ArrayList<ContentItem> objects = new ArrayList<ContentItem>();
+
 
         objects.add(new ContentItem("Line Chart", "A simple demonstration of the linechart."));
         objects.add(new ContentItem("Line Chart (Dual YAxis)",
@@ -147,6 +149,8 @@ public class MainActivity extends Activity implements OnItemClickListener {
         objects.add(new ContentItem(
                 "Half PieChart",
                 "This demonstrates how to create a 180 degree PieChart."));
+
+        objects.add(new ContentItem("Line Chart with adds", "train version"));
 
         MyAdapter adapter = new MyAdapter(this, objects);
 
@@ -288,6 +292,10 @@ public class MainActivity extends Activity implements OnItemClickListener {
                 break;
             case 31:
                 i = new Intent(this, HalfPieChartActivity.class);
+                startActivity(i);
+                break;
+            case 32:
+                i = new Intent(this, LineChartViaDumbbell.class);
                 startActivity(i);
                 break;
 
