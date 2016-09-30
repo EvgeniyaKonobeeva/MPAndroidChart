@@ -1,6 +1,7 @@
 package com.xxmassdeveloper.mpchartexample.MyPackage;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.util.AttributeSet;
 
 import com.github.mikephil.charting.charts.CombinedChart;
@@ -25,6 +26,22 @@ public class CustomCombinedChart extends CombinedChart {
     @Override
     protected void init() {
         super.init();
-        mRenderer = new MyChartRender(this, mAnimator, mViewPortHandler);
+        mRenderer = new MyCombinedChartRender(this, mAnimator, mViewPortHandler);
+        mAxisRendererLeft = new MyYAxisRenderer(mViewPortHandler, mAxisLeft, mLeftAxisTransformer);
     }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        if (mXAxis.isDrawLimitLinesBehindDataEnabled())
+            mXAxisRenderer.renderLimitLines(canvas);
+
+        if (mAxisLeft.isDrawLimitLinesBehindDataEnabled())
+            mAxisRendererLeft.renderLimitLines(canvas);
+
+        if (mAxisRight.isDrawLimitLinesBehindDataEnabled())
+            mAxisRendererRight.renderLimitLines(canvas);
+
+    }
+
 }

@@ -13,8 +13,8 @@ import com.github.mikephil.charting.utils.ViewPortHandler;
  * Created by e.konobeeva on 28.09.2016.
  */
 
-public class MyChartRender extends CombinedChartRenderer{
-    public MyChartRender(CombinedChart chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
+public class MyCombinedChartRender extends CombinedChartRenderer{
+    public MyCombinedChartRender(CombinedChart chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
         super(chart, animator, viewPortHandler);
     }
 

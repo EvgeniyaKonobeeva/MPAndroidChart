@@ -11,7 +11,6 @@ import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.CandleData;
-import com.github.mikephil.charting.data.CandleDataSet;
 import com.github.mikephil.charting.data.CandleEntry;
 import com.github.mikephil.charting.data.CombinedData;
 import com.github.mikephil.charting.data.Entry;
@@ -102,14 +101,13 @@ public class LineChartViaDumbbell extends DemoBase{
 
         for(int i = 0; i < itemcount; i++){
             float close = YValues[i] + 1.5f;
-            float open = close;
-            float high = open + 1;
-            float low = close - 1;
-            CandleEntry candleEntry = new CandleEntry(XValues[i], high, low, open, close);
-            candleEntries.add(candleEntry);
+            float high = close - 1;
+            float low = close + 1;
+            DumbbellEntry dumbbellEntry = new DumbbellEntry(XValues[i], high, low,10f, 1f );
+            candleEntries.add(dumbbellEntry);
         }
 
-        CandleDataSet dataSet = new CandleDataSet(candleEntries, "candle entries");
+        DumbbellDataSet dataSet = new DumbbellDataSet(candleEntries, "candle entries");
         dataSet.setShadowWidth(1f);
         dataSet.setDrawValues(false);
 
@@ -137,24 +135,41 @@ public class LineChartViaDumbbell extends DemoBase{
     }
 
     private void setYAxis(){
-        LimitLine lowerDayLineLimit = new LimitLine(0.5f);
-        lowerDayLineLimit.setLineWidth(2f);
+
+        LimitLine lowerDayLineLimit = new MyLimitLine(1f, 0f, 7f);
+        lowerDayLineLimit.setLineWidth(1f);
         lowerDayLineLimit.enableDashedLine(5f, 10f, 0f);
         lowerDayLineLimit.setLineColor(Color.BLUE);
 
-        LimitLine upperNightLineLimit = new LimitLine(10f);
-        upperNightLineLimit.setLineWidth(2f);
+        LimitLine upperDayLineLimit = new MyLimitLine(10f, 0f, 7f);
+        upperDayLineLimit.setLineWidth(1f);
+        upperDayLineLimit.enableDashedLine(5f, 10f, 0f);
+        upperDayLineLimit.setLineColor(Color.BLUE);
+
+
+        LimitLine lowerNightLineLimit = new MyLimitLine(0.5f, 7f, 11f);
+        lowerNightLineLimit.setLineWidth(1.5f);
+        lowerNightLineLimit.enableDashedLine(5f, 10f, 0f);
+        lowerNightLineLimit.setLineColor(Color.DKGRAY);
+
+        LimitLine upperNightLineLimit = new MyLimitLine(9f, 7f, 11f);
+        upperNightLineLimit.setLineWidth(1.5f);
         upperNightLineLimit.enableDashedLine(5f, 10f, 0f);
+        upperNightLineLimit.setLineColor(Color.DKGRAY);
 
         YAxis rightAxis = chart.getAxisRight();
         rightAxis.setEnabled(false);
 
         YAxis leftAxis = chart.getAxisLeft();
         leftAxis.setDrawGridLines(false);
-        leftAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
+        leftAxis.setAxisMinimum(0f);
         leftAxis.setDrawLimitLinesBehindData(true);
+
+
         leftAxis.addLimitLine(lowerDayLineLimit);
+        leftAxis.addLimitLine(upperDayLineLimit);
         leftAxis.addLimitLine(upperNightLineLimit);
+        leftAxis.addLimitLine(lowerNightLineLimit);
     }
 
 }

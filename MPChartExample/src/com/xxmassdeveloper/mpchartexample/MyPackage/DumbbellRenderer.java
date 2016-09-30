@@ -1,8 +1,9 @@
 package com.xxmassdeveloper.mpchartexample.MyPackage;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
+import android.graphics.Shader;
 
 import com.github.mikephil.charting.animation.ChartAnimator;
 import com.github.mikephil.charting.data.CandleEntry;
@@ -19,21 +20,22 @@ import com.github.mikephil.charting.utils.ViewPortHandler;
 public class DumbbellRenderer extends CandleStickChartRenderer {
 
     private float[] mRangeBuffers = new float[4];
+
     private float[] mHighCircleBuffers = new float[2];
     private float[] mLowCircleBuffers = new float[2];
 
-    private int highColorId = Color.parseColor("#df5f5d");
-    private int lowColorId = Color.parseColor("#7a96de");
-    private int stickColorId = Color.parseColor("#f5aac0");
-    private float radius = 10;
+    private DumbbellDataSet dataSet;
+
+
 
     public DumbbellRenderer(CandleDataProvider chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
         super(chart, animator, viewPortHandler);
     }
 
     @Override
-    protected void drawDataSet(Canvas c, ICandleDataSet dataSet) {
+    protected void drawDataSet(Canvas c, ICandleDataSet idataSet) {
 //        super.drawDataSet(c, dataSet);
+        this.dataSet = (DumbbellDataSet)idataSet;
 
         Transformer trans = mChart.getTransformer(dataSet.getAxisDependency());
 
@@ -51,51 +53,83 @@ public class DumbbellRenderer extends CandleStickChartRenderer {
             if (e == null)
                 continue;
 
-            float low = e.getLow();
+            float systolic = e.getLow();
             float xPos = e.getX();
-            float high = e.getHigh();
+            float diastolic = e.getHigh();
+            float normSyst = e.getOpen();
+            float normDiast = e.getClose();
 
             mRangeBuffers[0] = xPos;
-            mRangeBuffers[1] = high;
+            mRangeBuffers[1] = diastolic;
             mRangeBuffers[2] = xPos;
-            mRangeBuffers[3] = low;
+            mRangeBuffers[3] = systolic;
 
             mHighCircleBuffers[0] = xPos;
-            mHighCircleBuffers[1] = high;
+            mHighCircleBuffers[1] = diastolic;
 
             mLowCircleBuffers[0] = xPos;
-            mLowCircleBuffers[1] = low;
+            mLowCircleBuffers[1] = systolic;
 
 
             trans.pointValuesToPixel(mRangeBuffers);
             trans.pointValuesToPixel(mLowCircleBuffers);
             trans.pointValuesToPixel(mHighCircleBuffers);
 
+            float highCenterY = mHighCircleBuffers[1]- dataSet.getBorderCircleRadius();
+            float lowCenterY = mLowCircleBuffers[1] + dataSet.getBorderCircleRadius();
 
-            mRenderPaint.setColor(stickColorId);
 
+//            mRenderPaint.setColor(dataSet.getStickColor());
+            mRenderPaint.setShader(null);
+            if(diastolic > systolic){
+                LinearGradient lg = new LinearGradient(mRangeBuffers[0], mRangeBuffers[1], mRangeBuffers[2], mRangeBuffers[3], dataSet.getSystolicBorderColorId(), dataSet.getDiastolicBorderColor(), Shader.TileMode.CLAMP);
+                mRenderPaint.setShader(lg);
+            }else{
+                LinearGradient lg = new LinearGradient(mRangeBuffers[0], mRangeBuffers[3], mRangeBuffers[2], mRangeBuffers[1], dataSet.getDiastolicBorderColor(), dataSet.getSystolicBorderColorId(), Shader.TileMode.MIRROR);
+                mRenderPaint.setShader(lg);
+            }
 
             c.drawLine(
                     mRangeBuffers[0], mRangeBuffers[1],
                     mRangeBuffers[2], mRangeBuffers[3],
                     mRenderPaint);
+            mRenderPaint.setShader(null);
+
+//          Systolic pressure
+            mRenderPaint.setStyle(Paint.Style.FILL);
+            mRenderPaint.setColor(dataSet.getSystolicBorderColorId());
+            c.drawCircle(mHighCircleBuffers[0], highCenterY, dataSet.getBorderCircleRadius(), mRenderPaint);
+
+//          Diastolic pressure
+            mRenderPaint.setColor(dataSet.getDiastolicBorderColor());
+            c.drawCircle(mLowCircleBuffers[0], lowCenterY, dataSet.getBorderCircleRadius(), mRenderPaint);
+
+//          Center circle
+            mRenderPaint.setColor(dataSet.getCentreCircleColor());
+            c.drawCircle(mHighCircleBuffers[0], highCenterY, dataSet.getCenterCircleRadius(), mRenderPaint);
+            c.drawCircle(mLowCircleBuffers[0], lowCenterY,  dataSet.getCenterCircleRadius(), mRenderPaint);
+
+            if(diastolic > normDiast){
+                mRenderPaint.setColor(dataSet.getExternalBiggerCircleColor());
+                c.drawCircle(mLowCircleBuffers[0], lowCenterY,  dataSet.getExternalCircleRadius(), mRenderPaint);
+            }else if(diastolic < normDiast){
+                mRenderPaint.setColor(dataSet.getExternalSmallerCircleColor());
+                c.drawCircle(mLowCircleBuffers[0], lowCenterY,  dataSet.getExternalCircleRadius(), mRenderPaint);
+            }
 
             mRenderPaint.setStyle(Paint.Style.STROKE);
-            mRenderPaint.setStrokeWidth(3);
-            mRenderPaint.setColor(highColorId);
-            c.drawCircle(mHighCircleBuffers[0], mHighCircleBuffers[1]- radius, radius, mRenderPaint);
+            if(systolic > normSyst){
+                mRenderPaint.setColor(dataSet.getExternalBiggerCircleColor());
+                c.drawCircle(mHighCircleBuffers[0], highCenterY,  dataSet.getExternalCircleRadius(), mRenderPaint);
+            }else if(systolic < normSyst){
+                mRenderPaint.setColor(dataSet.getExternalSmallerCircleColor());
+                c.drawCircle(mHighCircleBuffers[0], highCenterY,  dataSet.getExternalCircleRadius(), mRenderPaint);
+            }
 
-            mRenderPaint.setColor(lowColorId);
-            c.drawCircle(mLowCircleBuffers[0], mLowCircleBuffers[1] + radius, radius, mRenderPaint);
 
         }
 
 
     }
 
-    public void setDesignParams(int highColorId, int lowColorId, int stickColorId){
-        this.highColorId = highColorId;
-        this.lowColorId = lowColorId;
-        this.stickColorId = stickColorId;
-    }
 }
