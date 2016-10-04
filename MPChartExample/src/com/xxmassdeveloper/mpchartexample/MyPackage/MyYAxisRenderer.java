@@ -57,9 +57,7 @@ public class MyYAxisRenderer extends YAxisRenderer {
             float xPosBuff2[] = new float[2];
 
             xPosBuff[0] = line.getBeginPos();
-//            xPosBuff[1] = /*line.getEndPos() == 0 ? mViewPortHandler.contentRight() : */line.getEndPos();
             xPosBuff2[0] = line.getEndPos();
-//            xPosBuff2[1] = /*line.getEndPos() == 0 ? mViewPortHandler.contentRight() : */line.getEndPos();
 
             mTrans.pointValuesToPixel(pts);
             mTrans.pointValuesToPixel(xPosBuff);
@@ -71,7 +69,6 @@ public class MyYAxisRenderer extends YAxisRenderer {
 
             c.drawPath(limitLinePath, mLimitLinePaint);
             limitLinePath.reset();
-            // c.drawLines(pts, mLimitLinePaint);
 
             c.restoreToCount(clipRestoreCount);
         }

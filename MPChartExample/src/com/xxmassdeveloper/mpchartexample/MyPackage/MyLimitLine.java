@@ -10,13 +10,6 @@ public class MyLimitLine extends LimitLine {
 
     private float beginPos = -1f;
     private float endPos = -1f;
-    public MyLimitLine(float limit) {
-        super(limit);
-    }
-
-    public MyLimitLine(float limit, String label) {
-        super(limit, label);
-    }
 
     public MyLimitLine(float limit, float beginPos, float endPos){
         super(limit);

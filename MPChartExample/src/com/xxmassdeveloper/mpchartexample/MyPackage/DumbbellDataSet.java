@@ -18,12 +18,25 @@ public class DumbbellDataSet extends CandleDataSet {
     private int stickColor = Color.parseColor("#f5aac0");
     private int centreCircleColor = Color.parseColor("#fafafa");
 
-    private int externalBiggerCircleColor = Color.BLUE;
-    private int externalSmallerCircleColor = Color.RED;
+    private int externalHighCircleColor = Color.parseColor("#4ddf5f5d");
+    private int externalLowCircleColor = Color.parseColor("#4d7996de");
 
-    private float borderCircleRadius = 10f;
-    private float centerCircleRadius = 6f;
-    private float externalCircleRadius = 13f;
+    private float borderCircleRadius = 15f;
+    private float centerCircleRadius = 10f;
+    private float externalCircleRadius = 19f;
+
+    private float dayDiastNorm;
+    private float daySystNorm;
+    private float nightDiastNorm;
+    private float nightSystNorm;
+
+    private float nightDividerPos;
+
+    private boolean enableDayNorms;
+    private boolean enableNightNorms;
+
+    private boolean enableNightDivision = false;
+
 
 
     public DumbbellDataSet(List<CandleEntry> yVals, String label) {
@@ -56,12 +69,47 @@ public class DumbbellDataSet extends CandleDataSet {
         centerCircleRadius = radiusPx;
     }
 
-    public void setExternalBiggerCircleColor(String parsableColor){
-        externalBiggerCircleColor = Color.parseColor(parsableColor);
+    public void setExternalHighCircleColor(String parsableColor){
+        externalHighCircleColor = Color.parseColor(parsableColor);
     }
 
-    public void setExternalSmallerCircleColor(String parsableColor) {
-        this.externalSmallerCircleColor = Color.parseColor(parsableColor);
+    public void setExternalLowCircleColor(String parsableColor) {
+        this.externalLowCircleColor = Color.parseColor(parsableColor);
+    }
+
+    public void setDayNorms(float systNorm, float diastNorm){
+        this.daySystNorm = systNorm;
+        this.dayDiastNorm = diastNorm;
+    }
+
+    public void setNightNorms(float systNorm, float diastNorm){
+        this.nightSystNorm = systNorm;
+        this.nightDiastNorm = diastNorm;
+    }
+
+    public void setNightDividerPos(float nightDividerPos) {
+        this.nightDividerPos = nightDividerPos;
+        enableNightDivision = true;
+    }
+
+    public void setSystolicBorderColorId(int systolicBorderColorId) {
+        this.systolicBorderColorId = systolicBorderColorId;
+    }
+
+    public void setDaySystNorm(float daySystNorm) {
+        this.daySystNorm = daySystNorm;
+    }
+
+    public void setDayDiastNorm(float dayDiastNorm) {
+        this.dayDiastNorm = dayDiastNorm;
+    }
+
+    public void setNightDiastNorm(float nightDiastNorm) {
+        this.nightDiastNorm = nightDiastNorm;
+    }
+
+    public void setNightSystNorm(float nightSystNorm) {
+        this.nightSystNorm = nightSystNorm;
     }
 
     public int getSystolicBorderColorId() {
@@ -80,12 +128,12 @@ public class DumbbellDataSet extends CandleDataSet {
         return centreCircleColor;
     }
 
-    public int getExternalBiggerCircleColor() {
-        return externalBiggerCircleColor;
+    public int getExternalHighCircleColor() {
+        return externalHighCircleColor;
     }
 
-    public int getExternalSmallerCircleColor() {
-        return externalSmallerCircleColor;
+    public int getExternalLowCircleColor() {
+        return externalLowCircleColor;
     }
 
     public float getBorderCircleRadius() {
@@ -98,5 +146,44 @@ public class DumbbellDataSet extends CandleDataSet {
 
     public float getExternalCircleRadius() {
         return externalCircleRadius;
+    }
+
+    public float getDayDiastNorm() {
+        return dayDiastNorm;
+    }
+
+    public float getDaySystNorm() {
+        return daySystNorm;
+    }
+
+    public float getNightDiastNorm() {
+        return nightDiastNorm;
+    }
+
+    public float getNightSystNorm() {
+        return nightSystNorm;
+    }
+
+    public float getNightDividerPos() {
+        return nightDividerPos;
+    }
+
+    public void enableDayNorms(boolean enable){
+        enableDayNorms = enable;
+    }
+    public void enableNightNorms(boolean enable){
+        enableNightNorms = enable;
+    }
+
+    public boolean isEnableDayNorms() {
+        return enableDayNorms;
+    }
+
+    public boolean isEnableNightNorms() {
+        return enableNightNorms;
+    }
+
+    public boolean isEnableNightDivision() {
+        return enableNightDivision;
     }
 }

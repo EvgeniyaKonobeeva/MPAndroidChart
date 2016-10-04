@@ -32,6 +32,14 @@ public class LineChartViaDumbbell extends DemoBase{
     private float XValues[];
     private float YValues[];
 
+    private float dayDiastLimit = 15;
+    private float daySystLimit = 8;
+
+    private float nightDiastLimit = 10;
+    private float nightSystLimit = 5;
+
+    private float nightPos = 7;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,7 +96,7 @@ public class LineChartViaDumbbell extends DemoBase{
         set.setDrawCircleHole(false);
         set.setCircleRadius(2f);
         set.setFillColor(Color.rgb(0,191,255));
-        set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        set.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
         set.setDrawValues(false);
 
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
@@ -101,15 +109,25 @@ public class LineChartViaDumbbell extends DemoBase{
 
         for(int i = 0; i < itemcount; i++){
             float close = YValues[i] + 1.5f;
-            float high = close - 1;
-            float low = close + 1;
-            DumbbellEntry dumbbellEntry = new DumbbellEntry(XValues[i], high, low,10f, 1f );
+            float high = close + 1;
+            float low = close - 1;
+            DumbbellEntry dumbbellEntry = new DumbbellEntry(XValues[i], high, low,20f, 10f );
             candleEntries.add(dumbbellEntry);
         }
 
         DumbbellDataSet dataSet = new DumbbellDataSet(candleEntries, "candle entries");
         dataSet.setShadowWidth(1f);
         dataSet.setDrawValues(false);
+        dataSet.enableDayNorms(true);
+        dataSet.enableNightNorms(true);
+        dataSet.setDayDiastNorm(dayDiastLimit);
+        dataSet.setDaySystNorm(daySystLimit);
+        dataSet.setNightDiastNorm(nightDiastLimit);
+        dataSet.setNightSystNorm(nightSystLimit);
+        dataSet.setNightDividerPos(nightPos);
+
+        dataSet.setSystolicBorderColor("#bbea77");
+        dataSet.setDiastolicBorderColor("#ffb536");
 
         return new CandleData(dataSet);
 
@@ -118,7 +136,7 @@ public class LineChartViaDumbbell extends DemoBase{
     }
 
     private XAxis setXAxis(){
-        LimitLine horizontalLineLimit = new LimitLine(7f);
+        LimitLine horizontalLineLimit = new LimitLine(nightPos);
         horizontalLineLimit.setLineWidth(2f);
         horizontalLineLimit.enableDashedLine(5f, 10f, 0f);
         horizontalLineLimit.setLineColor(Color.parseColor("#ed998e"));
@@ -136,26 +154,26 @@ public class LineChartViaDumbbell extends DemoBase{
 
     private void setYAxis(){
 
-        LimitLine lowerDayLineLimit = new MyLimitLine(1f, 0f, 7f);
-        lowerDayLineLimit.setLineWidth(1f);
-        lowerDayLineLimit.enableDashedLine(5f, 10f, 0f);
-        lowerDayLineLimit.setLineColor(Color.BLUE);
+        LimitLine systDayLineLimit = new MyLimitLine(daySystLimit, 0f, nightPos);
+        systDayLineLimit.setLineWidth(1f);
+        systDayLineLimit.enableDashedLine(5f, 10f, 0f);
+        systDayLineLimit.setLineColor(Color.BLUE);
 
-        LimitLine upperDayLineLimit = new MyLimitLine(10f, 0f, 7f);
-        upperDayLineLimit.setLineWidth(1f);
-        upperDayLineLimit.enableDashedLine(5f, 10f, 0f);
-        upperDayLineLimit.setLineColor(Color.BLUE);
+        LimitLine diastDayLineLimit = new MyLimitLine(dayDiastLimit, 0f, nightPos);
+        diastDayLineLimit.setLineWidth(1f);
+        diastDayLineLimit.enableDashedLine(5f, 10f, 0f);
+        diastDayLineLimit.setLineColor(Color.GREEN);
 
 
-        LimitLine lowerNightLineLimit = new MyLimitLine(0.5f, 7f, 11f);
-        lowerNightLineLimit.setLineWidth(1.5f);
-        lowerNightLineLimit.enableDashedLine(5f, 10f, 0f);
-        lowerNightLineLimit.setLineColor(Color.DKGRAY);
+        LimitLine systNightLineLimit = new MyLimitLine(nightSystLimit, nightPos, 11f);
+        systNightLineLimit.setLineWidth(1.5f);
+        systNightLineLimit.enableDashedLine(5f, 10f, 0f);
+        systNightLineLimit.setLineColor(Color.DKGRAY);
 
-        LimitLine upperNightLineLimit = new MyLimitLine(9f, 7f, 11f);
-        upperNightLineLimit.setLineWidth(1.5f);
-        upperNightLineLimit.enableDashedLine(5f, 10f, 0f);
-        upperNightLineLimit.setLineColor(Color.DKGRAY);
+        LimitLine diastNightLineLimit = new MyLimitLine(nightDiastLimit, nightPos, 11f);
+        diastNightLineLimit.setLineWidth(1.5f);
+        diastNightLineLimit.enableDashedLine(5f, 10f, 0f);
+        diastNightLineLimit.setLineColor(Color.GRAY);
 
         YAxis rightAxis = chart.getAxisRight();
         rightAxis.setEnabled(false);
@@ -165,11 +183,10 @@ public class LineChartViaDumbbell extends DemoBase{
         leftAxis.setAxisMinimum(0f);
         leftAxis.setDrawLimitLinesBehindData(true);
 
-
-        leftAxis.addLimitLine(lowerDayLineLimit);
-        leftAxis.addLimitLine(upperDayLineLimit);
-        leftAxis.addLimitLine(upperNightLineLimit);
-        leftAxis.addLimitLine(lowerNightLineLimit);
+        leftAxis.addLimitLine(systDayLineLimit);
+        leftAxis.addLimitLine(diastDayLineLimit);
+        leftAxis.addLimitLine(diastNightLineLimit);
+        leftAxis.addLimitLine(diastNightLineLimit);
     }
 
 }

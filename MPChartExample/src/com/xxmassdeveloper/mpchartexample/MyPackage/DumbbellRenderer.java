@@ -24,18 +24,21 @@ public class DumbbellRenderer extends CandleStickChartRenderer {
     private float[] mHighCircleBuffers = new float[2];
     private float[] mLowCircleBuffers = new float[2];
 
-    private DumbbellDataSet dataSet;
+    private Paint externalCirclePaint = new Paint();
+
+
 
 
 
     public DumbbellRenderer(CandleDataProvider chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
         super(chart, animator, viewPortHandler);
+        externalCirclePaint.setStyle(Paint.Style.STROKE);
     }
 
     @Override
     protected void drawDataSet(Canvas c, ICandleDataSet idataSet) {
 //        super.drawDataSet(c, dataSet);
-        this.dataSet = (DumbbellDataSet)idataSet;
+        DumbbellDataSet dataSet = (DumbbellDataSet)idataSet;
 
         Transformer trans = mChart.getTransformer(dataSet.getAxisDependency());
 
@@ -43,49 +46,47 @@ public class DumbbellRenderer extends CandleStickChartRenderer {
         float barSpace = dataSet.getBarSpace();
 
         mXBounds.set(mChart, dataSet);
-        mRenderPaint.setStrokeWidth(dataSet.getShadowWidth());
+
 
         for (int j = mXBounds.min; j <= mXBounds.range + mXBounds.min; j++) {
 
+            mRenderPaint.setStrokeWidth(dataSet.getShadowWidth());
             // get the entry
             CandleEntry e = dataSet.getEntryForIndex(j);
 
             if (e == null)
                 continue;
 
-            float systolic = e.getLow();
+            float low = e.getLow();
             float xPos = e.getX();
-            float diastolic = e.getHigh();
-            float normSyst = e.getOpen();
-            float normDiast = e.getClose();
+            float high = e.getHigh();
 
             mRangeBuffers[0] = xPos;
-            mRangeBuffers[1] = diastolic;
+            mRangeBuffers[1] = high;
             mRangeBuffers[2] = xPos;
-            mRangeBuffers[3] = systolic;
+            mRangeBuffers[3] = low;
 
             mHighCircleBuffers[0] = xPos;
-            mHighCircleBuffers[1] = diastolic;
+            mHighCircleBuffers[1] = high;
 
             mLowCircleBuffers[0] = xPos;
-            mLowCircleBuffers[1] = systolic;
-
+            mLowCircleBuffers[1] = low;
 
             trans.pointValuesToPixel(mRangeBuffers);
             trans.pointValuesToPixel(mLowCircleBuffers);
             trans.pointValuesToPixel(mHighCircleBuffers);
 
-            float highCenterY = mHighCircleBuffers[1]- dataSet.getBorderCircleRadius();
-            float lowCenterY = mLowCircleBuffers[1] + dataSet.getBorderCircleRadius();
+//            mHighCircleBuffers[1] = mHighCircleBuffers[1]- dataSet.getBorderCircleRadius();
+//            mLowCircleBuffers[1] = mLowCircleBuffers[1] + dataSet.getBorderCircleRadius();
 
 
 //            mRenderPaint.setColor(dataSet.getStickColor());
             mRenderPaint.setShader(null);
-            if(diastolic > systolic){
-                LinearGradient lg = new LinearGradient(mRangeBuffers[0], mRangeBuffers[1], mRangeBuffers[2], mRangeBuffers[3], dataSet.getSystolicBorderColorId(), dataSet.getDiastolicBorderColor(), Shader.TileMode.CLAMP);
+            if(mRangeBuffers[1] > mRangeBuffers[3]){
+                LinearGradient lg = new LinearGradient(0, mRangeBuffers[1], 0, mRangeBuffers[3], dataSet.getSystolicBorderColorId(), dataSet.getDiastolicBorderColor(), Shader.TileMode.MIRROR);
                 mRenderPaint.setShader(lg);
             }else{
-                LinearGradient lg = new LinearGradient(mRangeBuffers[0], mRangeBuffers[3], mRangeBuffers[2], mRangeBuffers[1], dataSet.getDiastolicBorderColor(), dataSet.getSystolicBorderColorId(), Shader.TileMode.MIRROR);
+                LinearGradient lg = new LinearGradient(0, mRangeBuffers[3], 0, mRangeBuffers[1], dataSet.getDiastolicBorderColor(), dataSet.getSystolicBorderColorId(), Shader.TileMode.MIRROR);
                 mRenderPaint.setShader(lg);
             }
 
@@ -93,43 +94,73 @@ public class DumbbellRenderer extends CandleStickChartRenderer {
                     mRangeBuffers[0], mRangeBuffers[1],
                     mRangeBuffers[2], mRangeBuffers[3],
                     mRenderPaint);
+
             mRenderPaint.setShader(null);
 
 //          Systolic pressure
             mRenderPaint.setStyle(Paint.Style.FILL);
             mRenderPaint.setColor(dataSet.getSystolicBorderColorId());
-            c.drawCircle(mHighCircleBuffers[0], highCenterY, dataSet.getBorderCircleRadius(), mRenderPaint);
+            c.drawCircle(mHighCircleBuffers[0], mHighCircleBuffers[1], dataSet.getBorderCircleRadius(), mRenderPaint);
 
 //          Diastolic pressure
             mRenderPaint.setColor(dataSet.getDiastolicBorderColor());
-            c.drawCircle(mLowCircleBuffers[0], lowCenterY, dataSet.getBorderCircleRadius(), mRenderPaint);
+            c.drawCircle(mLowCircleBuffers[0], mLowCircleBuffers[1], dataSet.getBorderCircleRadius(), mRenderPaint);
 
 //          Center circle
             mRenderPaint.setColor(dataSet.getCentreCircleColor());
-            c.drawCircle(mHighCircleBuffers[0], highCenterY, dataSet.getCenterCircleRadius(), mRenderPaint);
-            c.drawCircle(mLowCircleBuffers[0], lowCenterY,  dataSet.getCenterCircleRadius(), mRenderPaint);
+            c.drawCircle(mHighCircleBuffers[0], mHighCircleBuffers[1], dataSet.getCenterCircleRadius(), mRenderPaint);
+            c.drawCircle(mLowCircleBuffers[0], mLowCircleBuffers[1],  dataSet.getCenterCircleRadius(), mRenderPaint);
 
-            if(diastolic > normDiast){
-                mRenderPaint.setColor(dataSet.getExternalBiggerCircleColor());
-                c.drawCircle(mLowCircleBuffers[0], lowCenterY,  dataSet.getExternalCircleRadius(), mRenderPaint);
-            }else if(diastolic < normDiast){
-                mRenderPaint.setColor(dataSet.getExternalSmallerCircleColor());
-                c.drawCircle(mLowCircleBuffers[0], lowCenterY,  dataSet.getExternalCircleRadius(), mRenderPaint);
-            }
 
-            mRenderPaint.setStyle(Paint.Style.STROKE);
-            if(systolic > normSyst){
-                mRenderPaint.setColor(dataSet.getExternalBiggerCircleColor());
-                c.drawCircle(mHighCircleBuffers[0], highCenterY,  dataSet.getExternalCircleRadius(), mRenderPaint);
-            }else if(systolic < normSyst){
-                mRenderPaint.setColor(dataSet.getExternalSmallerCircleColor());
-                c.drawCircle(mHighCircleBuffers[0], highCenterY,  dataSet.getExternalCircleRadius(), mRenderPaint);
-            }
+            getPressureNorms((DumbbellEntry) e, dataSet, c);
 
 
         }
 
 
+    }
+
+    protected void drawExternalCircle(float pressure, float norma, Canvas c, DumbbellDataSet dataSet, boolean systolic){
+
+        float strokeWidth = dataSet.getExternalCircleRadius() - dataSet.getBorderCircleRadius();
+        externalCirclePaint.setStrokeWidth(strokeWidth*2);
+        if(systolic) {
+            if (pressure > norma) {
+                externalCirclePaint.setColor(dataSet.getExternalHighCircleColor());
+                c.drawCircle(mLowCircleBuffers[0], mLowCircleBuffers[1], dataSet.getExternalCircleRadius(), externalCirclePaint);
+            } else if (pressure < norma) {
+                externalCirclePaint.setColor(dataSet.getExternalLowCircleColor());
+                c.drawCircle(mLowCircleBuffers[0], mLowCircleBuffers[1], dataSet.getExternalCircleRadius(), externalCirclePaint);
+            }
+        }else {
+            if (pressure > norma) {
+                externalCirclePaint.setColor(dataSet.getExternalHighCircleColor());/*Color.parseColor("#4ddf5f5d")*/
+                c.drawCircle(mHighCircleBuffers[0], mHighCircleBuffers[1], dataSet.getExternalCircleRadius(), externalCirclePaint);
+            } else if (pressure < norma) {
+                externalCirclePaint.setColor(dataSet.getExternalLowCircleColor()); /*Color.parseColor("#4d7996de")*/
+                c.drawCircle(mHighCircleBuffers[0], mHighCircleBuffers[1], dataSet.getExternalCircleRadius(), externalCirclePaint);
+            }
+        }
+    }
+
+    protected void getPressureNorms(DumbbellEntry entry, DumbbellDataSet dataSet, Canvas c){
+        if(dataSet.isEnableDayNorms()){
+            if(dataSet.isEnableNightDivision() && dataSet.isEnableNightNorms()){
+                if(entry.getX() <  dataSet.getNightDividerPos()){ /* day*/
+                    drawExternalCircle(entry.getHigh(), dataSet.getDayDiastNorm(), c, dataSet, false);
+                    drawExternalCircle(entry.getLow(), dataSet.getDaySystNorm(), c, dataSet, true);
+                }else{ /*night*/
+                    drawExternalCircle(entry.getHigh(), dataSet.getNightDiastNorm(), c, dataSet, false);
+                    drawExternalCircle(entry.getLow(), dataSet.getNightSystNorm(), c, dataSet, true);
+                }
+            }else {
+                drawExternalCircle(entry.getHigh(), dataSet.getDayDiastNorm(), c, dataSet, false);
+                drawExternalCircle(entry.getLow(), dataSet.getDaySystNorm(), c, dataSet, true);
+            }
+        }else if(dataSet.isEnableNightNorms()) {
+            drawExternalCircle(entry.getHigh(), dataSet.getNightDiastNorm(), c, dataSet, false);
+            drawExternalCircle(entry.getLow(), dataSet.getNightSystNorm(), c, dataSet, true);
+        }
     }
 
 }
